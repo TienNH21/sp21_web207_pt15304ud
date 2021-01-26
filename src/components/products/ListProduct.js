@@ -6,7 +6,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
 import Switch from '@material-ui/core/Switch';
 
-function ListProduct({ data }) {
+function ListProduct({ data, onRowClick }) {
   return (
     <Table>
       <TableHead>
@@ -22,7 +22,13 @@ function ListProduct({ data }) {
         {
           data.map(function (value, index) {
             return (
-              <TableRow key={index}>
+              <TableRow
+                onClick={
+                  (event) => {
+                    onRowClick(event, value, index);
+                  }
+                }
+                key={index}>
                 <TableCell>{value.id}</TableCell>
                 <TableCell>{value.name}</TableCell>
                 <TableCell>{value.price}</TableCell>
@@ -56,15 +62,5 @@ function ListProduct({ data }) {
     </Table>
   );
 }
-
-// ListProduct.propTypes = {
-//   data: PropTypes.arrayOf(
-//       PropTypes.shape({
-//           id: PropTypes.number.isRequired,
-//           name: PropTypes.string.isRequired,
-//           price: PropTypes.string.isRequired
-//       }).isRequired
-//   ).isRequired,
-// }
 
 export default ListProduct;

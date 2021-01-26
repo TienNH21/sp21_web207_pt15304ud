@@ -26,6 +26,29 @@ function App() {
   ];
 
   const [products, setProduct] = useState(initValue);
+  const [clickRow, setClickRow] = useState(-1);
+  const [formData, setFormData] = useState({
+    id: '',
+    name: '',
+    price: '',
+  });
+
+  const onRowClick = (event, value, index) => {
+    setClickRow(index);
+    setFormData(value);
+  }
+
+  const onInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  }
+
+  const onFormSubmit = (event) => {
+    event.preventDefault();
+  }
 
   return (
     <React.Fragment>
@@ -36,8 +59,13 @@ function App() {
           style={{
             height: '100vh'
           }}>
-          <CreateProduct />
-          <ListProduct data={ products }/>
+          <CreateProduct
+            onFormSubmit={ onFormSubmit }
+            onInputChange={ onInputChange }
+            formData={ formData }/>
+          <ListProduct
+            onRowClick={onRowClick}
+            data={ products }/>
         </Typography>
 
       </Container>
