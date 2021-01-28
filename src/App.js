@@ -1,31 +1,14 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Container from '@material-ui/core/Container';
 import ListProduct from './components/products/ListProduct';
 import CreateProduct from './components/products/CreateProduct';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
+import axios from 'axios';
 
 function App() {
-  const initValue = [
-    {
-      id: 1,
-      name: 'IPhone 12',
-      price: '19,999,999.00 VND',
-    },
-    {
-      id: 2,
-      name: 'IPhone 11',
-      price: '12,999,999.00 VND',
-    },
-    {
-      id: 3,
-      name: 'Oppo',
-      price: '6,000,000.00 VND',
-    }
-  ];
-
-  const [products, setProduct] = useState(initValue);
+  const [products, setProduct] = useState([]);
   const [clickRow, setClickRow] = useState(-1);
   const [formData, setFormData] = useState({
     id: '',
@@ -46,8 +29,52 @@ function App() {
     });
   }
 
+  const onResetForm = () => {
+    setClickRow(-1);
+    setFormData({
+      id: '',
+      name: '',
+      price: '',
+    });
+  }
+
+  const url = 'https://5f2d045b8085690016922b50.mockapi.io/todo-list/products';
+
+  useEffect(() => {
+    axios({
+      method: 'GET',
+      url: url,
+    })
+      .then((repsonse) => {
+        console.log('hello');
+        const { data } = repsonse;
+        setProduct(data);
+      })
+      .catch((error) => {
+        console.log(error, error.repsonse);
+      });
+  }, [
+    /*
+     * useState sẽ gọi lại callback nếu giá trị các phần tử trong mảng thay đổi
+     */
+  ]);
+
+  const onCreateProduct = () => {
+    setProduct([
+      ...products,
+      formData,
+    ]);
+  }
+
   const onFormSubmit = (event) => {
     event.preventDefault();
+
+    if (clickRow == -1) {
+      // Thêm mới
+      onCreateProduct();
+    } else {
+      // Cập nhật
+    }
   }
 
   return (
@@ -60,6 +87,7 @@ function App() {
             height: '100vh'
           }}>
           <CreateProduct
+            onResetForm={ onResetForm }
             onFormSubmit={ onFormSubmit }
             onInputChange={ onInputChange }
             formData={ formData }/>

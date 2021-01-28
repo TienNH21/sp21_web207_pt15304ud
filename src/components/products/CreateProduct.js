@@ -7,6 +7,7 @@ function CreateProduct({
   formData,
   onInputChange,
   onFormSubmit,
+  onResetForm,
 }) {
   return (
     <React.Fragment>
@@ -38,6 +39,14 @@ function CreateProduct({
             color="primary"
             type="submit">
             Submit
+          </Button>
+          <Button
+            style={{ marginTop: '10px', marginLeft: '20px' }}
+            variant="contained"
+            color="default"
+            onClick={ onResetForm }
+            type="reset">
+            Reset
           </Button>
         </form>
       </Container>
