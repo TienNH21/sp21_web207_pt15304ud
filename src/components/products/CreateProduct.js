@@ -17,6 +17,7 @@ function CreateProduct({
           autoComplete="off">
           <TextField
             name="id"
+            disabled
             value={formData.id}
             onChange={ onInputChange }
             fullWidth

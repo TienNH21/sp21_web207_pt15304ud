@@ -1,4 +1,5 @@
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useEffect } from 'react';
 import Container from '@material-ui/core/Container';
 import ListProduct from './components/products/ListProduct';
@@ -38,7 +39,12 @@ function App() {
     });
   }
 
-  const url = 'https://5f2d045b8085690016922b50.mockapi.io/todo-list/products';
+  const limit = 10;
+  const pageInit = 1;
+  const [page, setPage] = useState(pageInit);
+
+  const url = 'https://5f2d045b8085690016922b50.mockapi.io/todo-list/products?limit=' + limit +
+    "&page=" + page;
 
   useEffect(() => {
     axios({
@@ -46,7 +52,6 @@ function App() {
       url: url,
     })
       .then((repsonse) => {
-        console.log('hello');
         const { data } = repsonse;
         setProduct(data);
       })
@@ -55,15 +60,26 @@ function App() {
       });
   }, [
     /*
-     * useState sẽ gọi lại callback nếu giá trị các phần tử trong mảng thay đổi
+     * useEffect sẽ gọi lại callback nếu giá trị các phần tử trong mảng thay đổi
      */
+    page
   ]);
 
   const onCreateProduct = () => {
-    setProduct([
-      ...products,
-      formData,
-    ]);
+    const urlApiThemMoi = 'https://5f2d045b8085690016922b50.mockapi.io/todo-list/products';
+
+    axios.post(urlApiThemMoi, formData)
+      .then(function (response) {
+        const { data } = response;
+        setProduct([
+          ...products,
+          data,
+        ]);
+      })
+      .catch(function (error) {
+        console.error('error');
+        console.error(error);
+      });
   }
 
   const onFormSubmit = (event) => {
@@ -75,6 +91,39 @@ function App() {
     } else {
       // Cập nhật
     }
+  }
+
+  const btnDeleteOnClick = function (event, value, index) {
+    const apiXoaUrl = `https://5f2d045b8085690016922b50.mockapi.io/todo-list/products/${ value.id }`;
+
+    axios.delete(apiXoaUrl)
+      .then(function (response) {
+        const listNew = products.filter(function (val, idx) {
+          if (idx == index) {
+            return false; // Loại bỏ phần tử
+          } else {
+            return true; // Giữ lại phần tử
+          }
+        });
+
+        setProduct(listNew);
+      })
+      .catch(function (error) {
+        console.error('error');
+        console.error(error);
+      })
+  }
+
+  const trangTruoc = function () {
+    if (page == 1) {
+      return ;
+    }
+
+    setPage(page - 1);
+  }
+
+  const trangSau = function () {
+    setPage(page + 1);
   }
 
   return (
@@ -92,10 +141,32 @@ function App() {
             onInputChange={ onInputChange }
             formData={ formData }/>
           <ListProduct
+            btnDeleteOnClick={ btnDeleteOnClick }
             onRowClick={onRowClick}
             data={ products }/>
-        </Typography>
 
+          <ul className="pagination mt-4 mb-4">
+            {/*
+              mt: margin-top
+              mb: margin-bottom
+            */}
+            <li
+              onClick={ trangTruoc }
+              className="page-item">
+              <a className="page-link">Trang trước</a>
+            </li>
+
+            <li className="page-item">
+              <a className="page-link">{ page }</a>
+            </li>
+
+            <li
+              onClick={ trangSau }
+              className="page-item">
+              <a className="page-link">Trang sau</a>
+            </li>
+          </ul>
+        </Typography>
       </Container>
     </React.Fragment>
   );

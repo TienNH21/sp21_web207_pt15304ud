@@ -6,7 +6,11 @@ import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
 import Switch from '@material-ui/core/Switch';
 
-function ListProduct({ data, onRowClick }) {
+function ListProduct({
+  data,
+  onRowClick,
+  btnDeleteOnClick,
+}) {
   return (
     <Table>
       <TableHead>
@@ -47,10 +51,16 @@ function ListProduct({ data, onRowClick }) {
                   }}>
                     Update
                   </Button>
-                  <Button style={{
-                    color: 'red',
-                    textTransform: 'none',
-                  }}>
+                  <Button
+                    onClick={
+                      (event) => {
+                        btnDeleteOnClick(event, value, index)
+                      }
+                    }
+                    style={{
+                      color: 'red',
+                      textTransform: 'none',
+                    }}>
                     Delete
                   </Button>
                 </TableCell>
