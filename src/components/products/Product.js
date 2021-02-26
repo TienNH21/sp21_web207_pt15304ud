@@ -6,6 +6,8 @@ import CreateProduct from './CreateProduct';
 import { useState, useEffect } from 'react';
 
 function Product() {
+  const [listDanhMuc, setListDanhMuc] = useState([]);
+  const [danhMucId, setDanhMucId] = useState(-1);
   const [products, setProduct] = useState([]);
   const [clickRow, setClickRow] = useState(-1);
   const [formData, setFormData] = useState({
@@ -39,14 +41,37 @@ function Product() {
     });
   }
 
-  const limit = 10;
+  const limit = 5;
   const pageInit = 1;
   const [page, setPage] = useState(pageInit);
 
-  const url = 'https://5f2d045b8085690016922b50.mockapi.io/todo-list/products?limit=' + limit +
-    "&page=" + page;
+  useEffect(() => {
+    setLoading(true);
+    const apiDanhMucUrl = 'https://5f2d045b8085690016922b50.mockapi.io/todo-list/categories';
+    axios.get(apiDanhMucUrl)
+      .then(function (response) {
+        const { data } = response;
+        setListDanhMuc(data);
+        setLoading(false);
+      })
+      .catch(function (error) {
+        console.log(error);
+        setLoading(false);
+      });
+  }, []);
+
+  const danhMucOnChange = function (event) {
+    setDanhMucId(event.target.value);
+    setPage(1);
+  }
 
   useEffect(() => {
+    if (danhMucId == -1) {
+      return ;
+    }
+
+    const url = 'https://5f2d045b8085690016922b50.mockapi.io/todo-list/categories/' +
+      danhMucId + '/products?limit=' + limit + "&page=" + page;
     setLoading(true);
     axios({
       method: 'GET',
@@ -56,10 +81,6 @@ function Product() {
         const { data } = repsonse;
         setProduct(data);
         setLoading(false);
-        axios({
-          method: 'GET',
-          url: url,
-        })
       })
       .catch((error) => {
         setLoading(false);
@@ -69,11 +90,12 @@ function Product() {
     /*
      * useEffect sẽ gọi lại callback nếu giá trị các phần tử trong mảng thay đổi
      */
-    page
+    page,
+    danhMucId,
   ]);
 
   const onCreateProduct = () => {
-    const urlApiThemMoi = 'https://5f2d045b8085690016922b50.mockapi.io/todo-list/products';
+    const urlApiThemMoi = 'https://5f2d045b8085690016922b50.mockapi.io/todo-list/categories/' + danhMucId + '/products';
 
     axios.post(urlApiThemMoi, formData)
       .then(function (response) {
@@ -90,7 +112,7 @@ function Product() {
   }
 
   const onUpdateProduct = function () {
-    const apiUpdate = 'https://5f2d045b8085690016922b50.mockapi.io/todo-list/products/' + formData.id;
+    const apiUpdate = 'https://5f2d045b8085690016922b50.mockapi.io/todo-list/categories/' + danhMucId + '/products/' + formData.id;
     axios.put(apiUpdate, formData)
       .then(function (response) {
         const listProductNew = products.map(function (val, idx) {
@@ -123,7 +145,7 @@ function Product() {
 
   const btnDeleteOnClick = function (event, value, index) {
     event.stopPropagation();
-    const apiXoaUrl = `https://5f2d045b8085690016922b50.mockapi.io/todo-list/products/${ value.id }`;
+    const apiXoaUrl = `https://5f2d045b8085690016922b50.mockapi.io/todo-list/categories/${danhMucId}/products/${ value.id }`;
 
     axios.delete(apiXoaUrl)
       .then(function (response) {
@@ -158,6 +180,7 @@ function Product() {
   return (
     <div>
       <Backdrop
+        style={{ zIndex: '1000' }}
         open={ loading }>
         <CircularProgress />
       </Backdrop>
@@ -175,6 +198,24 @@ function Product() {
         onFormSubmit={ onFormSubmit }
         onInputChange={ onInputChange }
         formData={ formData }/>
+
+      <select
+        onChange={ danhMucOnChange }
+        className="form-control mt-4 mb-4 col-6">
+        <option>-- Chọn danh mục --</option>
+        {
+          listDanhMuc.map((value, index) => {
+            return (
+              <option
+                value={ value.id }
+                key={index}>
+                { value.name }
+              </option>
+            );
+          })
+        }
+      </select>
+
       <ListProduct
         btnDeleteOnClick={ btnDeleteOnClick }
         onRowClick={onRowClick}
